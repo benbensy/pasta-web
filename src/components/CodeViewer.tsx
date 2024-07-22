@@ -1,24 +1,53 @@
-import { Highlight, themes } from "prism-react-renderer";
+import { Box, Stack, Typography } from "@mui/material";
+import { Highlight, PrismTheme, themes } from "prism-react-renderer";
 
 interface Props {
   code: string;
   lang: string;
+  theme?: PrismTheme;
 }
 
-export function CodeViewer({ code, lang }: Props) {
+export function CodeViewer({ code, lang, theme = themes.oneLight }: Props) {
   return (
-    <Highlight theme={themes.oneLight} code={code} language={lang}>
+    <Highlight theme={theme} code={code} language={lang}>
       {({ tokens, getLineProps, getTokenProps }) => (
-        <pre>
+        <Typography component={"pre"} fontFamily='"IBM Plex Mono"' width="100%">
           {tokens.map((line, i) => (
-            <div key={i} {...getLineProps({ line })}>
-              <span>{i + 1}</span>
-              {line.map((token, key) => (
-                <span key={key} {...getTokenProps({ token })} />
-              ))}
-            </div>
+            <Stack
+            direction='row'
+              key={i}
+              {...getLineProps({ line })}
+              fontFamily="inherit"
+              sx={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+                width: "inherit",
+                whiteSpace: "pre-wrap",
+              }}
+              spacing={1}
+            >
+              {/* <Typography
+                component="div"
+                fontFamily="inherit"
+                sx={{ userSelect: "none" }}
+                textAlign='right'
+                
+              >
+                {i + 1}
+              </Typography> */}
+              <Box flex={1}>
+                {line.map((token, key) => (
+                  <Typography
+                    component="span"
+                    key={key}
+                    {...getTokenProps({ token })}
+                    fontFamily="inherit"
+                  />
+                ))}
+              </Box>
+            </Stack>
           ))}
-        </pre>
+        </Typography>
       )}
     </Highlight>
   );

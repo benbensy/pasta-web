@@ -10,15 +10,15 @@ export default function App() {
   return (
     <>
       <CssBaseline />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<BaseLayout />}>
-            <Route index element={<Home />} />
-            <Route path="/preview" element={<Preview />} />
-            <Route path="/list" element={<List />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<BaseLayout />}>
+              <Route index element={<Home />} />
+              <Route path="/preview/:id" element={<Preview />} />
+              <Route path="/list" element={<List />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
     </>
   );
 }
