@@ -2,39 +2,38 @@ import { useEffect, useState } from "react";
 import { get, post } from "./axios";
 
 export interface UploadPastaRes {
-    content: string;
+  id: string;
 }
 
-export function useUploadPasta(payload: FormData) {
-    const [data, setData] = useState<UploadPastaRes | null>(null)
-
-    useEffect(() => {
-        post<ApiResponse<UploadPastaRes>>('/api/bin', payload).then(({ data }) => setData(data.data))
-        return () => {
-            setData(null)
-        }
-    })
-
-    return [data, setData] as const
+export async function uploadPasta(payload: FormData) {
+  const { data } = await post<ApiResponse<UploadPastaRes>>("/api/bin", payload);
+  return data;
 }
 
 export interface GetPastaRes {
-    content: string;
+  id: string;
+  content: string;
+  syntax: string;
 }
 
-export function useGetPasta(payload: { id: string, password?: string }) {
+export function useGetPasta(payload: { id: string | null; password?: string }) {
+  let url = "/api/bin/" + payload.id;
+  if (payload.password) {
+    url = `${url}?password=${payload.password}`;
+  }
+  const [data, setData] = useState<GetPastaRes | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
-    let url = '/api/bin/' + payload.id;
-    if (payload.password) {
-        url = `${url}?password=${payload.password}`
+  useEffect(() => {
+    if (payload.id) {
+      get<ApiResponse<GetPastaRes>>(url).then(
+        ({ data }) => setData(data.data),
+        (reason) => setError(reason)
+      );
     }
-    const [data, setData] = useState<GetPastaRes | null>(null)
 
-    useEffect(() => {
-        get<ApiResponse<GetPastaRes>>(url).then(({ data }) => setData(data.data))
+    return () => setData(null);
+  }, [payload.id, url]);
 
-        return () => setData(null)
-    }, [url])
-
-    return [data, setData] as const
+  return { data, error };
 }
