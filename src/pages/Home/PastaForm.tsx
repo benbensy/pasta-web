@@ -62,7 +62,7 @@ export function PastaForm({ defaultContent, onSubmit }: Props) {
               {...register("encrypted", { required: true })}
             >
               <option value="false">开放</option>
-              <option value="true">加密</option>
+              <option value="true">私密</option>
             </Select>
           </Box>
           <Box>

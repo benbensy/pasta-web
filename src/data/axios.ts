@@ -1,6 +1,7 @@
 import _axios from "axios";
 
 const axios = _axios.create();
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 axios.interceptors.response.use(
   (response) => {

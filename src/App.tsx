@@ -8,10 +8,11 @@ import {
 import { CSSReset } from "@chakra-ui/react";
 import { BaseLayout } from "./layouts/BaseLayout";
 import { Home } from "./pages/Home/Home";
-import { Preview } from "./pages/Preview";
+import { Preview } from "./pages/Preview/Preview";
 import { List } from "./pages/List";
 import { mode } from "@chakra-ui/theme-tools";
 import { History } from "./pages/History";
+import { Guide } from "./pages/Guide";
 
 export default function App() {
   const theme = extendTheme({
@@ -37,7 +38,7 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="/preview/:id" element={<Preview />} />
             <Route path="/list" element={<List />} />
-            <Route path="/guide" element={<List />} />
+            <Route path="/guide" element={<Guide />} />
             <Route path="/history" element={<History />} />
           </Route>
         </Routes>

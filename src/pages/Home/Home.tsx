@@ -32,9 +32,7 @@ export function Home() {
     navigate(url);
   };
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return (
     <Stack spacing={6}>
