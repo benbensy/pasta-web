@@ -1,9 +1,9 @@
-import { Box, Button, Stack, useToast } from "@chakra-ui/react";
+import { Text, Box, Button, Stack, useToast } from "@chakra-ui/react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useGetPasta } from "../../data/pasta";
 import { ContentViewer } from "../../components/ContentViewer";
-import { ErrorBoundary } from "react-error-boundary";
 import { PreviewFallback } from "./PreviewFallback";
+import { download } from "../../utils/download";
 
 export function Preview() {
   const params = useParams();
@@ -18,50 +18,61 @@ export function Preview() {
 
   const downloadContent = (content: string, id: string) => () => {
     const url = URL.createObjectURL(new Blob([content]));
-    const a = document.createElement("a");
-    a.download = `${id}.txt`;
-    a.href = url;
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    download(url, `${id}.txt`);
+  };
+
+  const donwloadAttachment = (id: string, name: string) => () => {
+    download(`/api/attachment/${id}`, name);
   };
 
   const fork = (id: string) => () => {
     navigate(`/?fork=${id}`);
   };
 
-  const { data, error } = useGetPasta({
-    id: params.id!,
-    password: searchParams.get("password")!,
-  });
+  const { data, error } = useGetPasta(
+    params.id!,
+    searchParams.get("password")!
+  );
 
-  if (error) throw error;
+  if (error) return <PreviewFallback error={error} />;
 
-  return <ErrorBoundary FallbackComponent={PreviewFallback}>
-    {
-      data ? (
-        <Stack spacing={6}>
-          <Stack direction="row" spacing={4}>
-            <Button size="sm" onClick={copy(data.content)}>
-              复制内容
-            </Button>
-            <Button size="sm" onClick={copy(window.location.href)}>
-              复制链接
-            </Button>
-            <Button size="sm" onClick={downloadContent(data.content, data.id)}>
-              下载内容
-            </Button>
-            <Button size="sm" onClick={fork(data.id)}>
-              Fork
+  return data ? (
+    <Stack spacing={6}>
+      <Stack direction="row" spacing={4}>
+        <Button size="sm" onClick={copy(data.data.content)}>
+          复制内容
+        </Button>
+        <Button size="sm" onClick={copy(window.location.href)}>
+          复制链接
+        </Button>
+        <Button
+          size="sm"
+          onClick={downloadContent(data.data.content, data.data.id)}
+        >
+          下载内容
+        </Button>
+        <Button size="sm" onClick={fork(data.data.id)}>
+          Fork
+        </Button>
+      </Stack>
+      <Stack>
+        <ContentViewer lang={data.data.syntax} content={data.data.content} />
+      </Stack>
+      <Stack spacing={1}>
+        {data.data.attachments.map((file, index) => (
+          <Stack key={index} direction="row" justifyContent="space-between">
+            <Text>{file.fileName}</Text>
+            <Button
+              size="xs"
+              onClick={donwloadAttachment(file.id, file.fileName)}
+            >
+              下载
             </Button>
           </Stack>
-          <Stack>
-            <ContentViewer lang={""} content={data.content} />
-          </Stack>
-        </Stack>
-      ) : (
-        <Box>加载内容中</Box>
-      )
-    }
-  </ErrorBoundary>
+        ))}
+      </Stack>
+    </Stack>
+  ) : (
+    <Box>加载内容中</Box>
+  );
 }

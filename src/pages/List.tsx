@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { usePastaList } from "../data/pasta";
 import { NavLink } from "react-router-dom";
+import { format } from "date-fns";
 
 export function List() {
   const { data, error } = usePastaList();
@@ -37,14 +38,14 @@ export function List() {
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((row) => (
+          {data.data.map((row) => (
             <Tr key={row.id}>
               <Td>
                 <Link color="blue.500" as={NavLink} to={`/preview/${row.id}`}>
                   {row.id}
                 </Link>
               </Td>
-              <Td>{row.created}</Td>
+              <Td>{format(row.created, 'yyyy-MM-dd HH:mm:ss')}</Td>
               <Td>{row.encrypted ? "私密" : "开放"}</Td>
               <Td>
                 <Button

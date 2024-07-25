@@ -1,64 +1,36 @@
-import { useEffect, useState } from "react";
 import { get, post } from "./axios";
+import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
 
 export interface UploadPastaRes {
-    id: string;
+  id: string;
 }
 
-export async function uploadPasta(payload: FormData) {
-    const { data } = await post<ApiResponse<UploadPastaRes>>("/api/bin", payload);
-    return data;
+export function useUploadPasta() {
+  return useSWRMutation<ApiResponse<UploadPastaRes>, Error, string, FormData>(
+    "/api/bin",
+    post
+  );
 }
 
 export interface GetPastaRes {
-    id: string;
-    content: string;
-    syntax: string;
+  id: string;
+  content: string;
+  syntax: string;
+  encrypted: boolean;
+  created: string;
+  attachments: {fileName: string, mimeType: string, id: string}[];
 }
 
-export function useGetPasta(payload: { id: string | null; password?: string }) {
-    let url = "/api/bin/" + payload.id;
-    if (payload.password) {
-        url = `${url}?password=${payload.password}`;
-    }
-    const [data, setData] = useState<GetPastaRes | null>(null);
-    const [error, setError] = useState<Error | null>(null);
-
-    useEffect(() => {
-        if (payload.id) {
-            get<ApiResponse<GetPastaRes>>(url).then(
-                ({ data }) => setData(data.data),
-                (reason) => setError(reason)
-            );
-        }
-
-        return () => {
-            setData(null);
-            setError(null)
-        };
-    }, [payload.id, url]);
-
-    return { data, error };
+export function useGetPasta(id: string | null, password?: string) {
+  let url = "/api/bin";
+  if (id) url = `${url}/${id}`;
+  if (password) url = `${url}/?password=${password}`;
+  return useSWR<ApiResponse<GetPastaRes>>(id ? url : null, get);
 }
 
-export type GetPastaListRes = {
-    encrypted: boolean;
-    created: string;
-    id: string
-}[]
+export type GetPastaListRes = GetPastaRes[];
 
 export function usePastaList() {
-    const [data, setData] = useState<GetPastaListRes | null>(null);
-    const [error, setError] = useState<Error | null>(null);
-
-    useEffect(() => {
-        get<ApiResponse<GetPastaListRes>>('/api/bin/list').then(({ data }) => setData(data.data), (reason) => setError(reason))
-
-        return () => {
-            setData(null)
-            setError(null)
-        }
-    }, [])
-
-    return { data, error }
+  return useSWR<ApiResponse<GetPastaListRes>>("/api/bin/list", get);
 }
